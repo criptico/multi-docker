@@ -17,9 +17,10 @@ after_success:
   # login to Docker CLI, las credenciales se ponen en Travis
   - echo "$DOLLAR_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
   # push to Docker
-  - docker push multi-client
-  - docker push multi-nginx
-  - docker push multi-server   
-  - docker push multi-worker
+  - docker push frozenphantom/multi-client
+  - docker push frozenphantom/multi-nginx
+  - docker push frozenphantom/multi-server   
+  - docker push frozenphantom/multi-worker
+  
   
 
