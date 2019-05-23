@@ -1,0 +1,25 @@
+sudo: requires
+services:
+  - docker
+
+before_install:
+  - docker build -t frozenphantom/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run frozenphantom/react-test npm test -- --coverage
+
+after_success:
+  - docker build -t frozenphantom/multi-client  ./client
+  - docker build -t frozenphantom/multi-nginx   ./nginx
+  - docker build -t frozenphantom/multi-server  ./server
+  - docker build -t frozenphantom/multi-worker  ./worker
+
+  # login to Docker CLI, las credenciales se ponen en Travis
+  - echo "$DOLLAR_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  # push to Docker
+  - docker push multi-client
+  - docker push multi-nginx
+  - docker push multi-server   
+  - docker push multi-worker
+  
+
