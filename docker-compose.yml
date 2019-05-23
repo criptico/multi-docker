@@ -1,0 +1,54 @@
+version: '3'
+
+services:
+  postgres:
+    image: 'postgres:latest'
+
+  redis:
+    image: 'redis:latest'
+
+  nginx:
+    restart: always
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./nginx
+    ports:
+      - '3050:80'
+
+  api:
+    build: 
+      # hay varios, entonces con el context le decimos de qué directorio
+      dockerfile: Dockerfile.dev
+      context: ./server
+    volumes:
+      # le dice: cualquier cosa que referencie a app, lo mandas a ./server, excepto cuando referencien a app/node_modules y en ese caso no hagas nada
+      - /app/node_modules
+      - ./server:/app
+    environment: 
+      - REDIS_HOST=redis               # es el nombre del container
+      - REDIS_PORT=6379                # puerto por default
+      - PGUSER=postgres                
+      - PGHOST=postgres                # es el nombre del container
+      - PGDATABASE=postgres            # es el nombre del container
+      - PGPASSWORD=postgress_password  # el password con el que viene por default
+      - PGPORT=5432                    # puerto por default
+
+  client:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./client
+    volumes:
+      - /app/node_modules
+      - ./client:/app
+ 
+  worker:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./worker
+    volumes:
+      - /app/node_modules
+      - ./worker:/app
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
